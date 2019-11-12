@@ -1,19 +1,50 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
 import Controls from '../components/controls/Controls';
 import Face from '../components/face/Face';
 
-const actions = [
-  { name: 'DRINK_COFFEE', text: 'Drink Coffee', stateName: 'coffees' },
-  { name: 'EAT_SNACK', text: 'Snack', stateName: 'snacks' },
-  { name: 'TAKE_NAP', text: 'Nap', stateName: 'naps' },
-  { name: 'STUDY', text: 'Study', stateName: 'studies' },
-];
+const Moods = ({ handleSelection, coffees, snacks, naps, studies }) => {
+  const state = { coffees, snacks, naps, studies };
+  const face = getFace(state);
+  const actions = [
+    { name: 'DRINK_COFFEE', text: 'coffees', count: coffees },
+    { name: 'EAT_SNACK', text: 'snacks', count: snacks },
+    { name: 'TAKE_NAP', text: 'naps', count: naps },
+    { name: 'STUDY', text: 'study', count: studies }
+  ];
+
+  return (
+    <>
+      <Controls actions={actions} handleSelection={handleSelection} />
+      <Face emoji={face} />
+    </>
+  );
+};
+
+const mapStateToProps = state => ({
+  coffees: state.drinkCoffee,
+  snacks: state.snack,
+  naps: state.nap,
+  studies: state.study,
+});
+
+const mapDispatchToProps = dispatch => ({
+  handleSelection(name) {
+    dispatch({
+      type: name
+    });
+  }
+});
+
+const MoodsContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Moods);
 
 export const isTired = state => state.coffees < 1 && state.naps < 1;
 export const isHyper = state => state.coffees > 3;
 export const isEducated = state => state.studies > 2;
 export const isHungry = state => state.snacks < 1;
-
 export const getFace = state => {
   if(isTired(state) && isHungry(state)) return '🤬';
   if(isHyper(state) && isHungry(state)) return '🤮';
@@ -25,45 +56,5 @@ export const getFace = state => {
   return '😀';
 };
 
-export default class Moods extends Component {
-  state = {
-    coffees: 0,
-    snacks: 0,
-    naps: 0,
-    studies: 0
-  }
+export default MoodsContainer;
 
-  handleSelection = name => {
-    switch(name) {
-      case 'DRINK_COFFEE':
-        this.setState(state => ({ coffees: state.coffees + 1 }));
-        break;
-      case 'EAT_SNACK':
-        this.setState(state => ({ snacks: state.snacks + 1 }));
-        break;
-      case 'TAKE_NAP':
-        this.setState(state => ({ naps: state.naps + 1 }));
-        break;
-      case 'STUDY':
-        this.setState(state => ({ studies: state.studies + 1 }));
-        break;
-      default:
-        console.log(`unhandled name: ${name}`);
-    }
-  }
-
-  render() {
-    const face = getFace(this.state);
-    const controlActions = actions.map(action => ({
-      ...action,
-      count: this.state[action.stateName]
-    }));
-
-    return (
-      <>
-        <Controls actions={controlActions} handleSelection={this.handleSelection}/>
-        <Face emoji={face} />
-      </>
-    );
-  }
-}
