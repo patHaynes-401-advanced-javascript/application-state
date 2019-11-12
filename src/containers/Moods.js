@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Controls from '../components/controls/Controls';
 import Face from '../components/face/Face';
@@ -19,6 +20,14 @@ const Moods = ({ handleSelection, coffees, snacks, naps, studies }) => {
       <Face emoji={face} />
     </>
   );
+};
+
+Moods.propTypes = {
+  handleSelection: PropTypes.func,
+  coffees: PropTypes.string,
+  snacks: PropTypes.string,
+  naps: PropTypes.string,
+  studies: PropTypes.string
 };
 
 const mapStateToProps = state => ({
